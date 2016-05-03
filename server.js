@@ -12,8 +12,15 @@ app.use(express.static('public'));
 
 wss.broadcast = function broadcast(data) {
     wss.clients.forEach(function each(client) {
-        console.log(client.webClient);
         if(client.webClient){
+            client.send(data);
+        }
+    });
+};
+
+wss.forwardCommand = function forwardCommand(data) {
+    wss.clients.forEach(function each(client) {
+        if(client.legoRobot){
             client.send(data);
         }
     });
@@ -31,8 +38,13 @@ wss.on('connection', function connection(ws) {
                         ws.send(JSON.stringify({ messages: messages }));
                     }
                     break;
+                case 'legoRobot':
+                    ws.legoRobot = true;
+                    break;
             }
-        }else{
+        }else if(parsed.hasOwnProperty('command')){
+            wss.forwardCommand(message);
+        } else {
             messages.push(message);
             wss.broadcast(message);
         }
