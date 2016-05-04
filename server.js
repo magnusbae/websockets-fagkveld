@@ -63,39 +63,39 @@ wss.on('connection', function connection(ws) {
         console.log('received: %s', message);
         try{
             var parsed = JSON.parse(message);
+            if(parsed.hasOwnProperty('register')){
+                switch (parsed.register){
+                    case 'webClient':
+                        ws.webClient = true;
+                        if(messages.size > 0){
+                            ws.send(JSON.stringify({ messages: messages }));
+                        }
+                        break;
+                    case 'legoRobot':
+                        ws.legoRobot = true;
+                        break;
+                }
+            }else if(parsed.hasOwnProperty('command')){
+                wss.forwardCommand(message);
+            } else if(parsed.hasOwnProperty('supportsProtocol')){
+                if(parsed.supportsProtocol === "token-ring"){
+                    console.log("registered new token ring client");
+                    ws.tokenRing = true;
+                    ws.send('ok');
+                }
+            } else if(parsed.hasOwnProperty("token")) {
+                var time = new Date().getMilliseconds();
+                if(time < issued + valid && currentToken === parsed.token){
+                    wss.broadcast(JSON.stringify({ message: parsed.message }))
+                }else{
+                    ws.send(JSON.stringify({error: "token not valid"}));
+                }
+            }else {
+                messages.push(message);
+                wss.broadcast(message);
+            }
         }catch (e){
             ws.send("stop sending crap! Stringify your JSON")
-        }
-        if(parsed.hasOwnProperty('register')){
-            switch (parsed.register){
-                case 'webClient':
-                    ws.webClient = true;
-                    if(messages.size > 0){
-                        ws.send(JSON.stringify({ messages: messages }));
-                    }
-                    break;
-                case 'legoRobot':
-                    ws.legoRobot = true;
-                    break;
-            }
-        }else if(parsed.hasOwnProperty('command')){
-            wss.forwardCommand(message);
-        } else if(parsed.hasOwnProperty('supportsProtocol')){
-            if(parsed.supportsProtocol === "token-ring"){
-                console.log("registered new token ring client");
-                ws.tokenRing = true;
-                ws.send('ok');
-            }
-        } else if(parsed.hasOwnProperty("token")) {
-            var time = new Date().getMilliseconds();
-            if(time < issued + valid && currentToken === parsed.token){
-                wss.broadcast(JSON.stringify({ message: parsed.message }))
-            }else{
-                ws.send(JSON.stringify({error: "token not valid"}));
-            }
-        }else {
-            messages.push(message);
-            wss.broadcast(message);
         }
     });
 });
