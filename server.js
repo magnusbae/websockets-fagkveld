@@ -35,12 +35,14 @@ wss.forwardCommand = function forwardCommand(data) {
 };
 
 wss.sendToken = function (client) {
-    currentToken = uuid.v4();
-    client.send({
-        token: currentToken,
-        issued: issued,
-        valid: valid
-    });
+    if(client.tokenRing){
+        currentToken = uuid.v4();
+        client.send({
+            token: currentToken,
+            issued: issued,
+            valid: valid
+        });
+    }
 };
 
 
@@ -80,7 +82,7 @@ wss.on('connection', function connection(ws) {
             if(time < issued + valid){
                 wss.broadcast(JSON.stringify({ message: parsed.message }))
             }else{
-                ws.send(JSON.stringify(new Error("token not valid")));
+                ws.send(JSON.stringify({error: "token not valid"}));
             }
         }else {
             messages.push(message);
