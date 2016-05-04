@@ -86,7 +86,7 @@ wss.on('connection', function connection(ws) {
             } else if(parsed.hasOwnProperty("token")) {
                 var time = new Date().getMilliseconds();
                 if(time < issued + valid && currentToken === parsed.token){
-                    wss.broadcast(JSON.stringify({ message: parsed.message }))
+                    wss.broadcast(parsed.message);
                 }else{
                     ws.send(JSON.stringify({error: "token not valid"}));
                 }
