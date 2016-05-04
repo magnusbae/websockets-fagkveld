@@ -70,6 +70,7 @@ wss.on('connection', function connection(ws) {
                         if(messages.size > 0){
                             ws.send(JSON.stringify({ messages: messages }));
                         }
+                        ws.send(JSON.stringify({message: 'test'}));
                         break;
                     case 'legoRobot':
                         ws.legoRobot = true;
@@ -86,7 +87,7 @@ wss.on('connection', function connection(ws) {
             } else if(parsed.hasOwnProperty("token")) {
                 var time = new Date().getMilliseconds();
                 if(time < issued + valid && currentToken === parsed.token){
-                    wss.broadcast(parsed.message);
+                    wss.broadcast(JSON.stringify({data: parsed.message}));
                 }else{
                     ws.send(JSON.stringify({error: "token not valid"}));
                 }
