@@ -61,7 +61,11 @@ setInterval(function () {
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         console.log('received: %s', message);
-        var parsed = JSON.parse(message);
+        try{
+            var parsed = JSON.parse(message);
+        }catch (e){
+            ws.send("stop sending crap! Stringify your JSON")
+        }
         if(parsed.hasOwnProperty('register')){
             switch (parsed.register){
                 case 'webClient':
