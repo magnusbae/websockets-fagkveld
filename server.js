@@ -102,9 +102,17 @@ wss.on('connection', function connection(ws) {
             ws.send("stop sending crap! Stringify your JSON")
         }
 
-        // ws.keepAlive = setInterval(function () {
-        //     ws.send('ping');
-        // }, 20000);
+        ws.keepAlive = setInterval(function () {
+            try{
+                ws.send('ping', function (err) {
+                    if(err){
+                        clearInterval(ws.keepAlive)
+                    }
+                });
+            }catch (e) {
+                clearInterval(ws.keepAlive);
+            }
+        }, 20000);
 
     });
 });
