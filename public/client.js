@@ -23,3 +23,4 @@ ws.onopen = function () {
       register: 'webClient'
   }));
 };
+
