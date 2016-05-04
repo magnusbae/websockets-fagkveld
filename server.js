@@ -37,17 +37,20 @@ wss.forwardCommand = function forwardCommand(data) {
 wss.sendToken = function (client) {
     if(client.tokenRing){
         currentToken = uuid.v4();
-        client.send({
+        console.log('sending token ' + currentToken);
+        client.send(JSON.stringify({
             token: currentToken,
             issued: issued,
             valid: valid
-        });
+        }));
     }
 };
 
 
 setInterval(function () {
+    console.log('token interval');
     if(wss.clients.length > 0){
+        console.log('preparing to send token');
         if (currentIndex >= wss.clients.length){
             currentIndex = 0;
         }
@@ -75,11 +78,13 @@ wss.on('connection', function connection(ws) {
             wss.forwardCommand(message);
         } else if(parsed.hasOwnProperty('supportsProtocol')){
             if(parsed.supportsProtocol === "token-ring"){
+                console.log("registered new token ring client");
                 ws.tokenRing = true;
+                ws.send('ok');
             }
         } else if(parsed.hasOwnProperty("token")) {
             var time = new Date().getMilliseconds();
-            if(time < issued + valid){
+            if(time < issued + valid && currentToken === parsed.token){
                 wss.broadcast(JSON.stringify({ message: parsed.message }))
             }else{
                 ws.send(JSON.stringify({error: "token not valid"}));
