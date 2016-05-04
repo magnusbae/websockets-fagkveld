@@ -70,7 +70,6 @@ wss.on('connection', function connection(ws) {
                         if(messages.size > 0){
                             ws.send(JSON.stringify({ messages: messages }));
                         }
-                        ws.send(JSON.stringify({message: 'test'}));
                         break;
                     case 'legoRobot':
                         ws.legoRobot = true;
