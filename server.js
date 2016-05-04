@@ -14,7 +14,7 @@ var messages = [];
 
 var currentToken = null;
 var issued = new Date().getMilliseconds();
-var valid = 10000; //ms
+var valid = 1000; //ms
 
 app.use(express.static('public'));
 
