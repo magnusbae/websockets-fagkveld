@@ -12,10 +12,12 @@ function appendHtml(el, str) {
 
 
 ws.onmessage = function (event) {
-    console.log(event);
-    var message = JSON.parse(event.data);
+    if(event.data !== "ping"){
+        console.log(event);
+        var message = JSON.parse(event.data);
 
-    appendHtml(body, '<span>' + message.data + '<br/></span>');
+        appendHtml(body, '<span>' + message.data + '<br/></span>');    
+    }
 };
 
 ws.onopen = function () {

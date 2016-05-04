@@ -86,8 +86,12 @@ wss.on('connection', function connection(ws) {
             } else if(parsed.hasOwnProperty("token")) {
                 var time = new Date().getMilliseconds();
                 if(time < issued + valid && currentToken === parsed.token){
+                    console.log("token good");
+                    messages.push({data: parsed.message});
                     wss.broadcast(JSON.stringify({data: parsed.message}));
+                    ws.send('message received');
                 }else{
+                    console.log("token bad");
                     ws.send(JSON.stringify({error: "token not valid"}));
                 }
             }else {
@@ -97,6 +101,11 @@ wss.on('connection', function connection(ws) {
         }catch (e){
             ws.send("stop sending crap! Stringify your JSON")
         }
+
+        ws.keepAlive = setInterval(function () {
+            ws.send('ping');
+        }, 20000);
+
     });
 });
 
